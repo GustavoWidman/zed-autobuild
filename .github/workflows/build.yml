@@ -2,14 +2,8 @@ name: Build and Cache Zed
 
 on:
   schedule:
-    # Check for new releases every 6 hours
     - cron: "0 */6 * * *"
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/build-and-cache.yml"
 
 concurrency:
   group: build-zed
@@ -18,7 +12,7 @@ concurrency:
 jobs:
   check-new-release:
     name: Check for new Zed release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       has_new_release: ${{ steps.check.outputs.has_new_release }}
       new_tag: ${{ steps.check.outputs.new_tag }}
@@ -51,7 +45,7 @@ jobs:
 
   build-and-push:
     name: Build ${{ matrix.system }}
-    needs: check-new-release
+    needs: [check-new-release]
     if: needs.check-new-release.outputs.has_new_release == 'true'
     runs-on: ${{ matrix.runner }}
     strategy:
@@ -59,17 +53,27 @@ jobs:
       matrix:
         include:
           - system: x86_64-linux
-            runner: ubuntu-latest
+            runner: ubuntu-24.04
           - system: aarch64-linux
-            runner: ubuntu-latest # Use QEMU or native ARM runner if available
+            runner: ubuntu-24.04-arm
           - system: x86_64-darwin
-            runner: macos-13 # Intel Mac
+            runner: macos-15-intel
           - system: aarch64-darwin
-            runner: macos-14 # ARM Mac
+            runner: macos-15
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Free up disk space
+        if: matrix.system == 'x86_64-linux'
+        run: |
+          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force
+          sudo docker builder prune -a
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
         with:
@@ -77,73 +81,47 @@ jobs:
             substituters = https://cache.nixos.org/ https://nix-community.cachix.org https://cache.garnix.io
             trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs= cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g=
             cores = 0
+      - uses: cachix/cachix-action@v15
+        with:
+          name: r3dlust
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+          skipPush: true
       - uses: DeterminateSystems/magic-nix-cache-action@main
-      - name: Setup QEMU for aarch64 builds
-        if: matrix.system == 'aarch64-linux' && runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-user-static binfmt-support
 
-      - name: Update flake to new tag
+      - name: Update files
         run: |
           NEW_TAG="${{ needs.check-new-release.outputs.new_tag }}"
 
-          # Update the zed input in flake.nix
-          sed -i "s|zed.url = \"github:zed-industries/zed/.*\"|zed.url = \"github:zed-industries/zed/$NEW_TAG\"|g" flake.nix
+          # Update .current
+          echo "$NEW_TAG" > .current
+
+          # Update flake.nix
+          perl -i -pe "s|zed\.url = \"github:zed-industries/zed/.*\"|zed.url = \"github:zed-industries/zed/$NEW_TAG\"|g" flake.nix
 
           # Update flake.lock
           nix flake update zed
 
-          cat flake.nix | grep "zed.url"
-
       - name: Build Zed for ${{ matrix.system }}
         run: |
-          if [ "${{ matrix.system }}" = "aarch64-linux" ] && [ "$(uname -m)" != "aarch64" ]; then
-            # Cross-compile for aarch64-linux
-            nix build .#packages.aarch64-linux.default \
-              --option system x86_64-linux \
-              --builders "" \
-              -L
-          else
-            # Native build
-            nix build .#default -L
-          fi
+          echo "BUILDING $(cat .current)"
+          nix build .#default -L
 
-      - name: Push to binary cache
-        env:
-          NIX_SIGNING_KEY: ${{ secrets.NIX_SIGNING_KEY }}
+      - name: Push to Cachix
         run: |
-          # Configure signing key
-          echo "$NIX_SIGNING_KEY" > /tmp/nix-signing-key.sec
-
           # Get the store path
-          STORE_PATH=$(nix eval --raw .#packages.${{ matrix.system }}.default.outPath || nix eval --raw .#default.outPath)
-          echo "Store path: $STORE_PATH"
+          STORE_PATH=$(nix eval --raw .#packages.${{ matrix.system }}.default.outPath 2>/dev/null || nix eval --raw .#default.outPath)
+          echo "Pushing to Cachix: $STORE_PATH"
 
-          # Sign the path
-          nix store sign \
-            --key-file /tmp/nix-signing-key.sec \
-            --recursive \
-            "$STORE_PATH"
-
-          # Push to your cache (adjust command for your cache type)
-          # For attic:
-          # attic push your-cache-name "$STORE_PATH"
-
-          # For a simple HTTP cache:
-          # nix copy --to "s3://your-bucket?region=us-east-1" "$STORE_PATH"
-
-          # For harmonia/nix-serve:
-          nix copy --to "http://YOUR-CACHE-URL" "$STORE_PATH"
-
-          # Clean up signing key
-          rm /tmp/nix-signing-key.sec
+          # Push to cachix with all dependencies
+          nix path-info --recursive "$STORE_PATH" | cachix push r3dlust
 
   update-current-tag:
     name: Update .current file
     needs: [check-new-release, build-and-push]
+    permissions:
+      contents: write
     if: needs.check-new-release.outputs.has_new_release == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -159,7 +137,7 @@ jobs:
           echo "$NEW_TAG" > .current
 
           # Update flake.nix
-          sed -i "s|zed.url = \"github:zed-industries/zed/.*\"|zed.url = \"github:zed-industries/zed/$NEW_TAG\"|g" flake.nix
+          perl -i -pe "s|zed\.url = \"github:zed-industries/zed/.*\"|zed.url = \"github:zed-industries/zed/$NEW_TAG\"|g" flake.nix
 
           # Update flake.lock
           nix flake update zed
