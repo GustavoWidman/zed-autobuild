@@ -110,10 +110,12 @@ jobs:
         run: |
           # Get the store path
           STORE_PATH=$(nix eval --raw .#packages.${{ matrix.system }}.default.outPath 2>/dev/null || nix eval --raw .#default.outPath)
+          PIN_NAME="zed-${{ matrix.system }}"
           echo "Pushing to Cachix: $STORE_PATH"
 
-          # Push to cachix with all dependencies
           nix path-info --recursive "$STORE_PATH" | cachix push r3dlust
+
+          cachix pin r3dlust "$PIN_NAME" "$STORE_PATH" --keep-revisions 3
 
   update-current-tag:
     name: Update .current file
