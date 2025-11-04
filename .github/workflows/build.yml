@@ -19,22 +19,19 @@ jobs:
       current_tag: ${{ steps.check.outputs.current_tag }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Check for new release
         id: check
         run: |
-          # Get current tag from .current file
           CURRENT_TAG=$(cat .current || echo "v0.0.0")
           echo "Current tag: $CURRENT_TAG"
           echo "current_tag=$CURRENT_TAG" >> $GITHUB_OUTPUT
 
-          # Get latest Zed release tag
           LATEST_TAG=$(curl -s https://api.github.com/repos/zed-industries/zed/releases | jq -r '.[0].tag_name')
           echo "Latest tag: $LATEST_TAG"
           echo "new_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
 
-          # Compare
           if [ "$CURRENT_TAG" != "$LATEST_TAG" ]; then
             echo "New release found: $LATEST_TAG"
             echo "has_new_release=true" >> $GITHUB_OUTPUT
@@ -56,13 +53,11 @@ jobs:
             runner: ubuntu-24.04
           - system: aarch64-linux
             runner: ubuntu-24.04-arm
-          - system: x86_64-darwin
-            runner: macos-15-intel
           - system: aarch64-darwin
             runner: macos-15
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Free up disk space
         if: matrix.system == 'x86_64-linux'
@@ -74,10 +69,9 @@ jobs:
           sudo rm -rf /opt/hostedtoolcache/CodeQL
           sudo docker image prune --all --force
           sudo docker builder prune -a
-      - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@main
+      - uses: nixbuild/nix-quick-install-action@v34
         with:
-          extra-conf: |
+          nix_conf: |
             substituters = https://cache.nixos.org/ https://nix-community.cachix.org https://cache.garnix.io https://zed.cachix.org
             trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs= cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g= zed.cachix.org-1:/pHQ6dpMsAZk2DiP4WCL0p9YDNKWj2Q5FL20bNmw1cU=
             cores = 0
