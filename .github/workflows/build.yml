@@ -28,7 +28,23 @@ jobs:
           echo "Current tag: $CURRENT_TAG"
           echo "current_tag=$CURRENT_TAG" >> $GITHUB_OUTPUT
 
-          LATEST_TAG=$(curl -s https://api.github.com/repos/zed-industries/zed/releases | jq -r '.[0].tag_name')
+          # Fetch all releases and find the highest semantic version
+          LATEST_TAG=$(curl -s https://api.github.com/repos/zed-industries/zed/releases | jq -r '
+            [.[].tag_name]
+            | map(
+                . as $tag
+                | ltrimstr("v")
+                | split("-")
+                | {
+                    tag: $tag,
+                    version: (.[0] | split(".") | map(tonumber)),
+                    prerelease: (if length > 1 then .[1] else "" end)
+                  }
+              )
+            | sort_by([.version[], (.prerelease | if . == "" then 1 else 0 end)])
+            | reverse
+            | .[0].tag
+          ')
           echo "Latest tag: $LATEST_TAG"
           echo "new_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
 
