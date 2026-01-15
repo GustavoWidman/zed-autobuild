@@ -90,7 +90,8 @@ jobs:
           nix_conf: |
             substituters = https://cache.nixos.org/ https://nix-community.cachix.org https://cache.garnix.io https://zed.cachix.org
             trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs= cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g= zed.cachix.org-1:/pHQ6dpMsAZk2DiP4WCL0p9YDNKWj2Q5FL20bNmw1cU=
-            cores = 0
+            cores = ${{ matrix.system == 'aarch64-linux' && '2' || '0' }}
+            max-jobs = ${{ matrix.system == 'aarch64-linux' && '2' || 'auto' }}
       - uses: cachix/cachix-action@v15
         with:
           name: r3dlust
@@ -111,10 +112,14 @@ jobs:
           # Update flake.lock
           nix flake update zed
 
-      - name: Build Zed for ${{ matrix.system }}
+      - name: Build Zed {{ needs.check-new-release.outputs.new_tag }} for ${{ matrix.system }}
         run: |
           echo "BUILDING $(cat .current)"
-          nix build .#default -L
+          if [ "${{ matrix.system }}" = "aarch64-linux" ]; then
+            nix build .#default -L --cores 2 --max-jobs 2
+          else
+            nix build .#default -L
+          fi
 
       - name: Push to Cachix
         run: |
