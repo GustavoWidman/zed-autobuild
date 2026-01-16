@@ -2,7 +2,7 @@
   description = "latest release (or pre-release) pinned zed editor builds for binary cache";
 
   inputs = {
-    zed.url = "github:zed-industries/zed/v0.218.7";
+    zed.url = "github:zed-industries/zed/v0.220.1-pre";
   };
 
   outputs =
