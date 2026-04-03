@@ -30,7 +30,7 @@ jobs:
 
           # Fetch all releases and find the highest semantic version
           LATEST_TAG=$(curl -s https://api.github.com/repos/zed-industries/zed/releases | jq -r '
-            [.[].tag_name]
+            [.[].tag_name | select(contains("nightly") | not)]
             | map(
                 . as $tag
                 | ltrimstr("v")
