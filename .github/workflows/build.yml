@@ -21,7 +21,18 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v5
 
+      - name: Check if builds are disabled
+        id: disabled
+        run: |
+          if [ -f .disable-builds ]; then
+            echo "Builds disabled: $(cat .disable-builds)"
+            echo "disabled=true" >> $GITHUB_OUTPUT
+          else
+            echo "disabled=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Check for new release
+        if: steps.disabled.outputs.disabled != 'true'
         id: check
         run: |
           CURRENT_TAG=$(cat .current || echo "v0.0.0")
