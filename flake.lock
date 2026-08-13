@@ -77,11 +77,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1777346187,
-        "narHash": "sha256-oVxyGjpiIsrXhWTJVUOs38fZQkLjd0nZGOY9K7Kfot8=",
+        "lastModified": 1786247265,
+        "narHash": "sha256-cVTcTqAhzSNMOVddtBhFpuv+Vx6/SgrhgZWJiI61H24=",
         "owner": "oxalica",
         "repo": "rust-overlay",
-        "rev": "146e7bf7569b8288f24d41d806b9f584f7cfd5b5",
+        "rev": "6df7076ea0f5697e3242719a4c71211f00411cf5",
         "type": "github"
       },
       "original": {
@@ -98,16 +98,16 @@
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 1786545625,
-        "narHash": "sha256-oHFcYIWshXQdZP2J936a+bBe4MY55aj50YfMh9E2qz4=",
+        "lastModified": 1786545612,
+        "narHash": "sha256-SkxXs2PRJeCvxn2NwjFWqarIo93AOqJcqnw+9g6SDxE=",
         "owner": "zed-industries",
         "repo": "zed",
-        "rev": "e17dc4f9d50db73a458b64dcce50ecd4878b98a3",
+        "rev": "99b8cea6b36fe2fe40cc95e06bba335d52a3238a",
         "type": "github"
       },
       "original": {
         "owner": "zed-industries",
-        "ref": "v1.15.0",
+        "ref": "v1.16.0-pre",
         "repo": "zed",
         "type": "github"
       }
