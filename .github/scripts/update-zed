@@ -1,0 +1,134 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $# -ne 1 ]]; then
+  printf 'usage: %s <zed-tag>\n' "$0" >&2
+  exit 64
+fi
+
+zed_tag=$1
+TAG_FORMAT='^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*)|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(\.((0|[1-9][0-9]*)|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?$'
+
+if ! [[ "$zed_tag" =~ $TAG_FORMAT ]]; then
+  printf 'Zed tag does not match the accepted Zed tag format: %s\n' "$zed_tag" >&2
+  exit 64
+fi
+
+if [[ $(grep -Ec '^[[:space:]]*zed\.url = "github:zed-industries/zed/[^"]+";$' flake.nix) -ne 1 ]]; then
+  printf 'expected exactly one Zed flake input\n' >&2
+  exit 1
+fi
+
+if [[ $(grep -Fxc '      knownOutputHashes = {' flake.nix) -ne 1 ]]; then
+  printf 'expected exactly one Cargo Git output hash map\n' >&2
+  exit 1
+fi
+
+ZED_TAG="$zed_tag" perl -0pi -e '
+  my $tag = $ENV{ZED_TAG};
+  my $count = s{zed\.url = "github:zed-industries/zed/[^"]+"}{zed.url = "github:zed-industries/zed/$tag"}g;
+  die "expected exactly one Zed flake input\n" unless $count == 1;
+' flake.nix
+printf '%s\n' "$zed_tag" > .current
+
+nix flake lock --update-input zed
+
+zed_source=$(nix eval --raw --impure --expr '
+  let lock = builtins.fromJSON (builtins.readFile ./flake.lock);
+  in (builtins.fetchTree lock.nodes.zed.locked).outPath
+')
+nixpkgs_source=$(nix eval --raw --impure --expr '
+  let
+    lock = builtins.fromJSON (builtins.readFile ./flake.lock);
+    nixpkgs = lock.nodes.${lock.nodes.zed.inputs.nixpkgs}.locked;
+  in (builtins.fetchTree nixpkgs).outPath
+')
+cargo_lock="$zed_source/Cargo.lock"
+
+if [[ ! -f "$cargo_lock" ]]; then
+  printf 'Cargo.lock not found in pinned Zed source: %s\n' "$cargo_lock" >&2
+  exit 1
+fi
+
+hashes=$(mktemp)
+rendered_hashes=$(mktemp)
+updated_flake=$(mktemp)
+prefetch_output=$(mktemp)
+trap 'rm -f "$hashes" "$rendered_hashes" "$updated_flake" "$prefetch_output"' EXIT
+
+CARGO_LOCK="$cargo_lock" nix eval --json --impure --expr '
+  let
+    cargoLock = builtins.fromTOML (builtins.readFile (builtins.getEnv "CARGO_LOCK"));
+    gitSources = builtins.filter (
+      source: source != null && builtins.match "git\\+.*" source != null
+    ) (builtins.map (package: package.source or null) cargoLock.package);
+  in
+    builtins.attrNames (
+      builtins.listToAttrs (builtins.map (source: {
+        name = source;
+        value = null;
+      }) gitSources)
+    )
+' | jq -r '.[]' | while IFS= read -r source; do
+  git_source=${source#git+}
+  git_url=${git_source%%#*}
+  git_url=${git_url%%\?*}
+  locked_rev=${git_source##*#}
+
+  if [[ "$git_source" == "$source" || "$locked_rev" == "$git_source" || -z "$git_url" || -z "$locked_rev" ]]; then
+    printf 'could not parse Cargo git source: %s\n' "$source" >&2
+    exit 1
+  fi
+
+  hash=''
+  for attempt in 1 2 3; do
+    rm -f "$prefetch_output"
+    if nix run --quiet "path:$nixpkgs_source#nix-prefetch-git" -- \
+      --quiet \
+      --url "$git_url" \
+      --rev "$locked_rev" \
+      --fetch-submodules \
+      --fetch-lfs > "$prefetch_output" \
+      && hash=$(jq -er '.hash | select(type == "string" and startswith("sha256-"))' "$prefetch_output"); then
+      break
+    fi
+
+    rm -f "$prefetch_output"
+    if [[ "$attempt" == "3" ]]; then
+      printf 'nix-prefetch-git failed for %s after %s attempts\n' "$source" "$attempt" >&2
+      exit 1
+    fi
+    sleep $((attempt * 5))
+  done
+  rm -f "$prefetch_output"
+  printf '%s\t%s\n' "$source" "$hash"
+done | LC_ALL=C sort -t $'\t' -k1,1 > "$hashes"
+
+{
+  printf '      knownOutputHashes = {\n'
+  while IFS=$'\t' read -r source hash; do
+    printf '        %s = %s;\n' "$(printf '%s' "$source" | jq -Rs .)" "$(printf '%s' "$hash" | jq -Rs .)"
+  done < "$hashes"
+  printf '      };\n'
+} > "$rendered_hashes"
+
+awk -v rendered_hashes="$rendered_hashes" '
+  $0 == "      knownOutputHashes = {" {
+    while ((getline line < rendered_hashes) > 0) {
+      print line
+    }
+    close(rendered_hashes)
+    replacing = 1
+    next
+  }
+  replacing {
+    if ($0 == "      };") {
+      replacing = 0
+    }
+    next
+  }
+  { print }
+' flake.nix > "$updated_flake"
+mv "$updated_flake" flake.nix
+
+nix eval --raw .#packages.x86_64-linux.default.drvPath >/dev/null

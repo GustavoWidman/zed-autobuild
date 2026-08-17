@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: "0 */6 * * *"
   workflow_dispatch:
+    inputs:
+      force_rebuild:
+        description: Rebuild the current pinned release without checking for updates
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: build-zed
@@ -17,6 +23,9 @@ jobs:
       has_new_release: ${{ steps.check.outputs.has_new_release }}
       new_tag: ${{ steps.check.outputs.new_tag }}
       current_tag: ${{ steps.check.outputs.current_tag }}
+      should_update: ${{ steps.check.outputs.should_update }}
+      should_build: ${{ steps.check.outputs.should_build }}
+      build_tag: ${{ steps.check.outputs.build_tag }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v5
@@ -26,51 +35,207 @@ jobs:
         run: |
           if [ -f .disable-builds ]; then
             echo "Builds disabled: $(cat .disable-builds)"
-            echo "disabled=true" >> $GITHUB_OUTPUT
+            echo "disabled=true" >> "$GITHUB_OUTPUT"
           else
-            echo "disabled=false" >> $GITHUB_OUTPUT
+            echo "disabled=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Check for new release
         if: steps.disabled.outputs.disabled != 'true'
         id: check
+        env:
+          FORCE_REBUILD: ${{ inputs.force_rebuild }}
         run: |
-          CURRENT_TAG=$(cat .current || echo "v0.0.0")
+          set -euo pipefail
+
+          TAG_FORMAT='^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*)|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(\.((0|[1-9][0-9]*)|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?$'
+          CURRENT_TAG=$(cat .current 2>/dev/null || printf 'v0.0.0')
+          if ! [[ "$CURRENT_TAG" =~ $TAG_FORMAT ]]; then
+            printf 'Pinned Zed tag does not match the accepted Zed tag format: %s\n' "$CURRENT_TAG" >&2
+            exit 1
+          fi
+
           echo "Current tag: $CURRENT_TAG"
-          echo "current_tag=$CURRENT_TAG" >> $GITHUB_OUTPUT
+          echo "current_tag=$CURRENT_TAG" >> "$GITHUB_OUTPUT"
 
-          # Fetch all releases and find the highest semantic version
-          LATEST_TAG=$(curl -s https://api.github.com/repos/zed-industries/zed/releases | jq -r '
-            [.[].tag_name]
-            | map(
-                . as $tag
-                | ltrimstr("v")
-                | split("-")
-                | {
-                    tag: $tag,
-                    version: (.[0] | split(".") | map(tonumber)),
-                    prerelease: (if length > 1 then .[1] else "" end)
-                  }
-              )
-            | sort_by([.version[], (.prerelease | if . == "" then 1 else 0 end)])
-            | reverse
-            | .[0].tag
-          ')
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" && "$FORCE_REBUILD" == "true" ]]; then
+            echo "Rebuilding pinned release: $CURRENT_TAG"
+            echo "new_tag=$CURRENT_TAG" >> "$GITHUB_OUTPUT"
+            echo "build_tag=$CURRENT_TAG" >> "$GITHUB_OUTPUT"
+            echo "has_new_release=false" >> "$GITHUB_OUTPUT"
+            echo "should_update=false" >> "$GITHUB_OUTPUT"
+            echo "should_build=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          RELEASE=$(
+            curl --fail --silent --show-error --retry 3 https://api.github.com/repos/zed-industries/zed/releases | jq -er --arg current "$CURRENT_TAG" '
+              def parse_tag:
+                capture("^v(?<major>0|[1-9][0-9]*)\\.(?<minor>0|[1-9][0-9]*)\\.(?<patch>0|[1-9][0-9]*)(?:-(?<pre>((0|[1-9][0-9]*)|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(\\.((0|[1-9][0-9]*)|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*))?$")
+                | .major |= tonumber
+                | .minor |= tonumber
+                | .patch |= tonumber
+                | .pre = (if .pre == null then null else (.pre | split(".")) end);
+              def cmp_scalar($left; $right):
+                if $left < $right then -1
+                elif $left > $right then 1
+                else 0
+                end;
+              def numeric_identifier:
+                test("^(0|[1-9][0-9]*)$");
+              def cmp_identifier($left; $right):
+                ($left | numeric_identifier) as $left_numeric
+                | ($right | numeric_identifier) as $right_numeric
+                | if $left_numeric and $right_numeric then
+                    cmp_scalar(($left | tonumber); ($right | tonumber))
+                  elif $left_numeric then -1
+                  elif $right_numeric then 1
+                  else cmp_scalar($left; $right)
+                  end;
+              def cmp_pre($left; $right):
+                if ($left | length) == 0 and ($right | length) == 0 then 0
+                elif ($left | length) == 0 then -1
+                elif ($right | length) == 0 then 1
+                else
+                  cmp_identifier($left[0]; $right[0]) as $comparison
+                  | if $comparison == 0 then
+                      cmp_pre($left[1:]; $right[1:])
+                    else $comparison
+                    end
+                end;
+              def cmp_version($left; $right):
+                if $left.major != $right.major then
+                  cmp_scalar($left.major; $right.major)
+                elif $left.minor != $right.minor then
+                  cmp_scalar($left.minor; $right.minor)
+                elif $left.patch != $right.patch then
+                  cmp_scalar($left.patch; $right.patch)
+                elif $left.pre == null and $right.pre == null then 0
+                elif $left.pre == null then 1
+                elif $right.pre == null then -1
+                else cmp_pre($left.pre; $right.pre)
+                end;
+              ($current | parse_tag) as $current_version
+              | [
+                  .[]
+                  | .tag_name
+                  | select(
+                      type == "string"
+                      and test("^v(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*)|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(\\.((0|[1-9][0-9]*)|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?$")
+                    )
+                  | { tag: ., semver: parse_tag }
+                ]
+              | reduce .[] as $candidate (
+                  null;
+                  if . == null or cmp_version(.semver; $candidate.semver) < 0 then
+                    $candidate
+                  else .
+                  end
+                )
+              | if . == null then
+                  error("no valid Zed release tag found")
+                else
+                  "\(.tag)\t\(cmp_version($current_version; .semver))"
+                end
+            '
+          )
+          IFS=$'\t' read -r LATEST_TAG VERSION_COMPARISON <<< "$RELEASE"
+          if [[ -z "$LATEST_TAG" || -z "$VERSION_COMPARISON" ]]; then
+            printf 'Could not determine the latest Zed release\n' >&2
+            exit 1
+          fi
+
           echo "Latest tag: $LATEST_TAG"
-          echo "new_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+          echo "new_tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
 
-          if [ "$CURRENT_TAG" != "$LATEST_TAG" ]; then
+          if [[ "$VERSION_COMPARISON" == "-1" ]]; then
             echo "New release found: $LATEST_TAG"
-            echo "has_new_release=true" >> $GITHUB_OUTPUT
+            echo "build_tag=$LATEST_TAG" >> "$GITHUB_OUTPUT"
+            echo "has_new_release=true" >> "$GITHUB_OUTPUT"
+            echo "should_update=true" >> "$GITHUB_OUTPUT"
+            echo "should_build=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          LOCKED_ZED_REV=$(jq -er '.nodes.zed.locked.rev' flake.lock)
+          TAGGED_ZED_REV=$(curl --fail --silent --show-error --retry 3 "https://api.github.com/repos/zed-industries/zed/commits/$CURRENT_TAG" | jq -er '.sha')
+          if [[ "$LOCKED_ZED_REV" != "$TAGGED_ZED_REV" ]]; then
+            echo "Pinned Zed tag moved: $CURRENT_TAG now resolves to $TAGGED_ZED_REV"
+            echo "build_tag=$CURRENT_TAG" >> "$GITHUB_OUTPUT"
+            echo "has_new_release=false" >> "$GITHUB_OUTPUT"
+            echo "should_update=true" >> "$GITHUB_OUTPUT"
+            echo "should_build=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          LAST_SUCCESSFUL_BUILD=$(cat .last-success 2>/dev/null || true)
+          CURRENT_BUILD="$CURRENT_TAG"$'\t'"$LOCKED_ZED_REV"
+          echo "build_tag=$CURRENT_TAG" >> "$GITHUB_OUTPUT"
+          echo "has_new_release=false" >> "$GITHUB_OUTPUT"
+          echo "should_update=false" >> "$GITHUB_OUTPUT"
+          if [[ "$LAST_SUCCESSFUL_BUILD" != "$CURRENT_BUILD" ]]; then
+            echo "No successful cache build recorded for $CURRENT_TAG at $LOCKED_ZED_REV"
+            echo "should_build=true" >> "$GITHUB_OUTPUT"
           else
             echo "No new release"
-            echo "has_new_release=false" >> $GITHUB_OUTPUT
+            echo "should_build=false" >> "$GITHUB_OUTPUT"
           fi
+
+  update-release:
+    name: Update Zed release
+    needs: [check-new-release]
+    if: needs.check-new-release.outputs.should_update == 'true'
+    permissions:
+      contents: write
+    runs-on: ubuntu-24.04
+    outputs:
+      commit_sha: ${{ steps.commit.outputs.commit_sha }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Install Nix
+        uses: nixbuild/nix-quick-install-action@v34
+
+      - name: Update release files and Cargo Git output hashes
+        env:
+          ZED_TAG: ${{ needs.check-new-release.outputs.new_tag }}
+        run: .github/scripts/update-zed "$ZED_TAG"
+
+      - name: Commit release update
+        id: commit
+        env:
+          ZED_TAG: ${{ needs.check-new-release.outputs.new_tag }}
+        run: |
+          set -euo pipefail
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .current flake.nix flake.lock
+          if ! git diff --cached --quiet; then
+            git commit --quiet -m "chore: update to $ZED_TAG"
+            for attempt in 1 2 3; do
+              if git push --quiet origin "HEAD:refs/heads/$GITHUB_REF_NAME"; then
+                break
+              fi
+              if [[ "$attempt" == "3" ]]; then
+                printf 'Could not push release update after %s attempts\n' "$attempt" >&2
+                exit 1
+              fi
+              git fetch --quiet origin "+refs/heads/$GITHUB_REF_NAME:refs/remotes/origin/$GITHUB_REF_NAME"
+              git rebase "origin/$GITHUB_REF_NAME"
+            done
+          fi
+          printf 'commit_sha=%s\n' "$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
   build-and-push:
     name: Build ${{ matrix.system }}
-    needs: [check-new-release]
-    if: needs.check-new-release.outputs.has_new_release == 'true'
+    needs: [check-new-release, update-release]
+    if: >-
+      always() &&
+      needs.check-new-release.outputs.should_build == 'true' &&
+      (needs.update-release.result == 'success' || needs.update-release.result == 'skipped')
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
@@ -85,6 +250,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.update-release.outputs.commit_sha || github.sha }}
 
       - name: Free up disk space
         if: matrix.system == 'x86_64-linux'
@@ -110,20 +277,7 @@ jobs:
           skipPush: true
       - uses: DeterminateSystems/magic-nix-cache-action@main
 
-      - name: Update files
-        run: |
-          NEW_TAG="${{ needs.check-new-release.outputs.new_tag }}"
-
-          # Update .current
-          echo "$NEW_TAG" > .current
-
-          # Update flake.nix
-          perl -i -pe "s|zed\.url = \"github:zed-industries/zed/.*\"|zed.url = \"github:zed-industries/zed/$NEW_TAG\"|g" flake.nix
-
-          # Update flake.lock
-          nix flake update zed
-
-      - name: Build Zed {{ needs.check-new-release.outputs.new_tag }} for ${{ matrix.system }}
+      - name: Build Zed for ${{ matrix.system }}
         run: |
           echo "BUILDING $(cat .current)"
           if [ "${{ matrix.system }}" = "aarch64-linux" ]; then
@@ -134,7 +288,6 @@ jobs:
 
       - name: Push to Cachix
         run: |
-          # Get the store path
           STORE_PATH=$(nix eval --raw .#packages.${{ matrix.system }}.default.outPath 2>/dev/null || nix eval --raw .#default.outPath)
           PIN_NAME="zed-${{ matrix.system }}"
           echo "Pushing to Cachix: $STORE_PATH"
@@ -143,38 +296,51 @@ jobs:
 
           cachix pin r3dlust "$PIN_NAME" "$STORE_PATH" --keep-revisions 3
 
-  update-current-tag:
-    name: Update .current file
-    needs: [check-new-release, build-and-push]
+  mark-release-success:
+    name: Record successful Zed cache build
+    needs: [check-new-release, update-release, build-and-push]
+    if: >-
+      always() &&
+      needs.check-new-release.outputs.should_build == 'true' &&
+      (needs.update-release.result == 'success' || needs.update-release.result == 'skipped') &&
+      needs.build-and-push.result == 'success'
     permissions:
       contents: write
-    if: needs.check-new-release.outputs.has_new_release == 'true'
     runs-on: ubuntu-24.04
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - name: Checkout built release
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.update-release.outputs.commit_sha || github.sha }}
 
-      - name: Install Nix
-        uses: cachix/install-nix-action@v26
-
-      - name: Update files
+      - name: Commit successful cache build marker
+        env:
+          ZED_TAG: ${{ needs.check-new-release.outputs.build_tag }}
         run: |
-          NEW_TAG="${{ needs.check-new-release.outputs.new_tag }}"
+          set -euo pipefail
+          TAG_FORMAT='^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*)|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*)(\.((0|[1-9][0-9]*)|[0-9A-Za-z-]*[A-Za-z-][0-9A-Za-z-]*))*)?$'
+          if ! [[ "$ZED_TAG" =~ $TAG_FORMAT ]]; then
+            printf 'Zed tag does not match the accepted Zed tag format: %s\n' "$ZED_TAG" >&2
+            exit 1
+          fi
 
-          # Update .current
-          echo "$NEW_TAG" > .current
-
-          # Update flake.nix
-          perl -i -pe "s|zed\.url = \"github:zed-industries/zed/.*\"|zed.url = \"github:zed-industries/zed/$NEW_TAG\"|g" flake.nix
-
-          # Update flake.lock
-          nix flake update zed
-
-      - name: Commit and push changes
-        run: |
+          LOCKED_ZED_REV=$(jq -er '.nodes.zed.locked.rev' flake.lock)
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-
-          git add .current flake.nix flake.lock
-          git commit -m "chore: update to ${{ needs.check-new-release.outputs.new_tag }}"
-          git push
+          printf '%s\t%s\n' "$ZED_TAG" "$LOCKED_ZED_REV" > .last-success
+          git add .last-success
+          if ! git diff --cached --quiet; then
+            git commit --quiet -m "chore: record successful build for $ZED_TAG"
+            for attempt in 1 2 3; do
+              if git push --quiet origin "HEAD:refs/heads/$GITHUB_REF_NAME"; then
+                break
+              fi
+              if [[ "$attempt" == "3" ]]; then
+                printf 'Could not push build marker after %s attempts\n' "$attempt" >&2
+                exit 1
+              fi
+              git fetch --quiet origin "+refs/heads/$GITHUB_REF_NAME:refs/remotes/origin/$GITHUB_REF_NAME"
+              git rebase "origin/$GITHUB_REF_NAME"
+            done
+          fi

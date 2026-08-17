@@ -57,6 +57,8 @@
           "sha256-d7qbCI65fX8UmMtnXTw9r6nSeYEoxinSsgYyy+zFK34=";
         "git+https://github.com/zed-industries/lsp-types?rev=f4dfa89a21ca35cd929b70354b1583fabae325f8#f4dfa89a21ca35cd929b70354b1583fabae325f8" =
           "sha256-Am+0DlEyee2sDq5Kco33cDFlmp+QAd3Lo0bGggRCqGo=";
+        "git+https://github.com/zed-industries/merman?tag=v0.7.0-with-patches#a3ed8d9f3fd1d74c802f25ed9edd501743796504" =
+          "sha256-jd3U741PjbRX/g+eWk/oHzJ/aVX/2Cfs2tGB+vdZdhA=";
         "git+https://github.com/zed-industries/notify?rev=0890bbb8ca40a4b5d1f67031698dd7918b37d991#0890bbb8ca40a4b5d1f67031698dd7918b37d991" =
           "sha256-CC4GqFonIhEDBtUIk+GSuzD8DS8LLe47qaKMvihRoeA=";
         "git+https://github.com/zed-industries/reqwest.git?rev=c15662463bda39148ba154100dd44d3fba5873a4#c15662463bda39148ba154100dd44d3fba5873a4" =
@@ -88,10 +90,7 @@
         "git+https://github.com/zed-industries/yawc?rev=71a452f551cac178367eaac5d7418a09afa1f3a2#71a452f551cac178367eaac5d7418a09afa1f3a2" =
           "sha256-42nuLi6XLl7Mvyg5DEckT3rq4XrtW2D9rmWDJcJTMnU=";
       };
-      effectiveOutputHashes = knownOutputHashes // {
-        "git+https://github.com/zed-industries/merman?tag=v0.7.0-with-patches#a3ed8d9f3fd1d74c802f25ed9edd501743796504" =
-          "sha256-jd3U741PjbRX/g+eWk/oHzJ/aVX/2Cfs2tGB+vdZdhA=";
-      };
+      effectiveOutputHashes = knownOutputHashes;
       missingOutputHashKeys = builtins.filter (
         key: !(builtins.hasAttr key effectiveOutputHashes)
       ) gitSourceKeys;
