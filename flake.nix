@@ -2,7 +2,7 @@
   description = "latest release (or pre-release) pinned zed editor builds for binary cache";
 
   inputs = {
-    zed.url = "github:zed-industries/zed/v1.16.1-pre";
+    zed.url = "github:zed-industries/zed/v1.17.0-pre";
   };
 
   outputs =
@@ -28,10 +28,11 @@
         "git+https://github.com/KillTheMule/nvim-rs?rev=764dd270c642f77f10f3e19d05cc178a6cbe69f3#764dd270c642f77f10f3e19d05cc178a6cbe69f3" = "sha256-cnG18TL/L4NUze4ltz4IKo2uLhuRwmwZd/yNWrCweC4=";
         "git+https://github.com/RustAudio/rodio?rev=e50e726ddd0292f6ef9de0dda6b90af4ed1fb66a#e50e726ddd0292f6ef9de0dda6b90af4ed1fb66a" = "sha256-3TO3MkeSDAQc751aKLCQBJDVDsVc2RWCVqctujs5Qxg=";
         "git+https://github.com/camdencheek/tree-sitter-go-mod?rev=2e886870578eeba1927a2dc4bd2e2b3f598c5f9a#2e886870578eeba1927a2dc4bd2e2b3f598c5f9a" = "sha256-OfhV3lxdyIhA3XZYbafEtdOsQsTCSSCBrN3WbzSVg0g=";
-        "git+https://github.com/microsoft/python-environment-tools.git?rev=9e61a22af989fe54937bf07c9f9cff1bc53d9056#9e61a22af989fe54937bf07c9f9cff1bc53d9056" = "sha256-wA+o9WgXwx62U+pLjM8s6pxKeDTzmBugXb5l4cWNf1c=";
+        "git+https://github.com/microsoft/python-environment-tools.git?rev=bb8e04607b96a3865d6aa4bb2a5a5a82ce05b5f0#bb8e04607b96a3865d6aa4bb2a5a5a82ce05b5f0" = "sha256-7pLp0Ypm2hYC6PEQIBprPE/rpWm934P8j0mTaxUs298=";
         "git+https://github.com/proptest-rs/proptest?rev=3dca198a8fef1b32e3a66f1e1897c955b4dc5b5b#3dca198a8fef1b32e3a66f1e1897c955b4dc5b5b" = "sha256-p5NTcHhruI8QQvANACg8AMRVNmuvGxs2NLit+/8PaWo=";
         "git+https://github.com/smol-rs/async-task.git?rev=b4486cd71e4e94fbda54ce6302444de14f4d190e#b4486cd71e4e94fbda54ce6302444de14f4d190e" = "sha256-+ee4Mqd/Uj8Ki3Vjo6U9gtpZnuFeJtji5kgH3u3IBrA=";
         "git+https://github.com/tree-sitter/tree-sitter-cpp?rev=5cb9b693cfd7bfacab1d9ff4acac1a4150700609#5cb9b693cfd7bfacab1d9ff4acac1a4150700609" = "sha256-s9/n09EruafAMF3g6xOkfu6L+WXUx83PpcVKn1Tnmg8=";
+        "git+https://github.com/tree-sitter/tree-sitter?rev=dff1fd868c750dbbae179fcd5c43ce987e4e0528#dff1fd868c750dbbae179fcd5c43ce987e4e0528" = "sha256-T/UolSqdjvnyyUyDOlJ+PQG8TP0oT37CH+8t4IISwLA=";
         "git+https://github.com/zed-industries/alacritty?rev=4c129667ce56611becdc82de6e28218c80e2e88f#4c129667ce56611becdc82de6e28218c80e2e88f" = "sha256-fhd6tMhgkuoCTzJLyYa2iL7wjNMWeztfAf2qjsGyQAM=";
         "git+https://github.com/zed-industries/async-pipe-rs?rev=82d00a04211cf4e1236029aa03e6b6ce2a74c553#82d00a04211cf4e1236029aa03e6b6ce2a74c553" = "sha256-g120X88HGT8P6GNCrzpS5SutALx5H+45Sf4iSSxzctE=";
         "git+https://github.com/zed-industries/async-process.git?rev=0b6d6713570af61806e1e5cb40e0f757cb93fd9d#0b6d6713570af61806e1e5cb40e0f757cb93fd9d" = "sha256-Y37QTr6sjayv+JjGz00v0AMLQtsix1nH1lNKmky+6bU=";
