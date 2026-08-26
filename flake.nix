@@ -2,7 +2,7 @@
   description = "latest release (or pre-release) pinned zed editor builds for binary cache";
 
   inputs = {
-    zed.url = "github:zed-industries/zed/v1.17.2-pre";
+    zed.url = "github:zed-industries/zed/v1.18.0-pre";
   };
 
   outputs =
@@ -32,7 +32,7 @@
         "git+https://github.com/proptest-rs/proptest?rev=3dca198a8fef1b32e3a66f1e1897c955b4dc5b5b#3dca198a8fef1b32e3a66f1e1897c955b4dc5b5b" = "sha256-p5NTcHhruI8QQvANACg8AMRVNmuvGxs2NLit+/8PaWo=";
         "git+https://github.com/smol-rs/async-task.git?rev=b4486cd71e4e94fbda54ce6302444de14f4d190e#b4486cd71e4e94fbda54ce6302444de14f4d190e" = "sha256-+ee4Mqd/Uj8Ki3Vjo6U9gtpZnuFeJtji5kgH3u3IBrA=";
         "git+https://github.com/tree-sitter/tree-sitter-cpp?rev=5cb9b693cfd7bfacab1d9ff4acac1a4150700609#5cb9b693cfd7bfacab1d9ff4acac1a4150700609" = "sha256-s9/n09EruafAMF3g6xOkfu6L+WXUx83PpcVKn1Tnmg8=";
-        "git+https://github.com/tree-sitter/tree-sitter?rev=dff1fd868c750dbbae179fcd5c43ce987e4e0528#dff1fd868c750dbbae179fcd5c43ce987e4e0528" = "sha256-T/UolSqdjvnyyUyDOlJ+PQG8TP0oT37CH+8t4IISwLA=";
+        "git+https://github.com/tree-sitter/tree-sitter?rev=43623ec9bf0eaaf7113285c46e8a09018f181b18#43623ec9bf0eaaf7113285c46e8a09018f181b18" = "sha256-tDZzadbSmuf4bqoExdmH+4mg9WBGrzJ52VnXra13ydg=";
         "git+https://github.com/zed-industries/alacritty?rev=4c129667ce56611becdc82de6e28218c80e2e88f#4c129667ce56611becdc82de6e28218c80e2e88f" = "sha256-fhd6tMhgkuoCTzJLyYa2iL7wjNMWeztfAf2qjsGyQAM=";
         "git+https://github.com/zed-industries/async-pipe-rs?rev=82d00a04211cf4e1236029aa03e6b6ce2a74c553#82d00a04211cf4e1236029aa03e6b6ce2a74c553" = "sha256-g120X88HGT8P6GNCrzpS5SutALx5H+45Sf4iSSxzctE=";
         "git+https://github.com/zed-industries/async-process.git?rev=0b6d6713570af61806e1e5cb40e0f757cb93fd9d#0b6d6713570af61806e1e5cb40e0f757cb93fd9d" = "sha256-Y37QTr6sjayv+JjGz00v0AMLQtsix1nH1lNKmky+6bU=";
@@ -43,7 +43,6 @@
         "git+https://github.com/zed-industries/gh-workflow?rev=37f3c0575d379c218a9c455ee67585184e40d43f#37f3c0575d379c218a9c455ee67585184e40d43f" = "sha256-5V/PYw6vyL+retNyHbwyCoNe0PG5rjR1I4XTnkjLmwg=";
         "git+https://github.com/zed-industries/livekit-rust-sdks?rev=d0e27be0cdad89eadab3e36207cda0a2b6e359ee#d0e27be0cdad89eadab3e36207cda0a2b6e359ee" = "sha256-d7qbCI65fX8UmMtnXTw9r6nSeYEoxinSsgYyy+zFK34=";
         "git+https://github.com/zed-industries/lsp-types?rev=f4dfa89a21ca35cd929b70354b1583fabae325f8#f4dfa89a21ca35cd929b70354b1583fabae325f8" = "sha256-Am+0DlEyee2sDq5Kco33cDFlmp+QAd3Lo0bGggRCqGo=";
-        "git+https://github.com/zed-industries/merman?tag=v0.7.0-with-patches#a3ed8d9f3fd1d74c802f25ed9edd501743796504" = "sha256-jd3U741PjbRX/g+eWk/oHzJ/aVX/2Cfs2tGB+vdZdhA=";
         "git+https://github.com/zed-industries/notify?rev=0890bbb8ca40a4b5d1f67031698dd7918b37d991#0890bbb8ca40a4b5d1f67031698dd7918b37d991" = "sha256-CC4GqFonIhEDBtUIk+GSuzD8DS8LLe47qaKMvihRoeA=";
         "git+https://github.com/zed-industries/reqwest.git?rev=c15662463bda39148ba154100dd44d3fba5873a4#c15662463bda39148ba154100dd44d3fba5873a4" = "sha256-p4SiUrOrbTlk/3bBrzN/mq/t+1Gzy2ot4nso6w6S+F8=";
         "git+https://github.com/zed-industries/scap?rev=4afea48c3b002197176fb19cd0f9b180dd36eaac#4afea48c3b002197176fb19cd0f9b180dd36eaac" = "sha256-BihiQHlal/eRsktyf0GI3aSWsUCW7WcICMsC2Xvb7kw=";
