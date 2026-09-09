@@ -1,9 +1,0 @@
-Waiting for a Zed pre-release tag containing the nix source-filter fix for corgi-patches.
-
-Zed #63396 (corgi sandboxing) added corgi-patches/scratch as a workspace path
-dependency but did not include corgi-patches in the flake's topLevelIncludes,
-so every nix build of v1.19.0-pre / v1.19.1-pre fails with:
-  error: failed to load source for dependency `scratch`
-
-Fixed on zed main in #63644 ("nix: Include corgi patches in build sources"),
-which landed 4 minutes after v1.19.0-pre was published; neither 1.19.x tag has it.
