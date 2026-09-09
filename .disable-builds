@@ -1,0 +1,8 @@
+Zed v1.20.0-nightly+55d83c4 still fails nix builds despite the corgi-patches source-filter fix.
+
+All three platform builds failed while compiling cxx-build 1.0.187:
+  error[E0425]: cannot find function `path` in crate `scratch`
+  cxx-build/src/lib.rs:177:44: TargetDir::Unknown => scratch::path("cxxbridge")
+
+The vendored scratch dependency resolves to corgi-patches/scratch v1.0.9, which does not provide scratch::path expected by cxx-build.
+Run: 34386667313
