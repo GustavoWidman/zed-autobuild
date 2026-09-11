@@ -1,0 +1,3 @@
+Builds are intentionally disabled pending an upstream fix for the corgi-patches scratch API mismatch.
+
+Zed v1.20.0-nightly+55d83c4 fails compiling cxx-build 1.0.187 because corgi-patches/scratch v1.0.9 does not export scratch::path.
