@@ -1,1 +1,0 @@
-Builds disabled: Zed v1.20.0-nightly+55d83c4 still vendors corgi-patches/scratch v1.0.9 without scratch::path, so cxx-build 1.0.187 fails with error[E0425]. Await an upstream compatible nightly pin.
