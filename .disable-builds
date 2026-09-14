@@ -1,0 +1,1 @@
+Builds disabled: v1.20.1-nightly+744e997 still vendors scratch without scratch::path; cxx-build 1.0.187 fails with error[E0425]. Await the resolved nightly dependency fix.
