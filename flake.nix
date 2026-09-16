@@ -106,11 +106,10 @@
                   };
                 in
                 vendor.overrideAttrs (vendorOld: {
-                  postBuild = (vendorOld.postBuild or "") + ''
+                  postInstall = (vendorOld.postInstall or "") + ''
                     cxx_build_lib=$(find "$out" -path '*/cxx-build-*/src/lib.rs' -print -quit)
                     if [ -n "$cxx_build_lib" ]; then
-                      substituteInPlace "$cxx_build_lib" \
-                        --replace-fail 'scratch::path("cxxbridge")' 'std::env::temp_dir().join("cxxbridge")'
+                      sed -i 's/scratch::path(\"cxxbridge\")/std::env::temp_dir().join(\"cxxbridge\")/' "$cxx_build_lib"
                     fi
                   '';
                 });
