@@ -96,12 +96,23 @@
           let
             commonArgs = old.passthru.commonArgs // {
               cargoLock = "${zed.outPath}/Cargo.lock";
-              cargoVendorDir = old.passthru.craneLib.vendorCargoDeps {
-                inherit (old.passthru.commonArgs) src;
-                cargoLock = "${zed.outPath}/Cargo.lock";
-                outputHashes = effectiveOutputHashes;
-                inherit overrideVendorGitCheckout;
-              };
+              cargoVendorDir =
+                let
+                  vendor = old.passthru.craneLib.vendorCargoDeps {
+                    inherit (old.passthru.commonArgs) src;
+                    cargoLock = "${zed.outPath}/Cargo.lock";
+                    outputHashes = effectiveOutputHashes;
+                    inherit overrideVendorGitCheckout;
+                  };
+                in
+                vendor.overrideAttrs (vendorOld: {
+                  postBuild = (vendorOld.postBuild or "") + ''
+                    scratch_lib=$(find "$out" -path '*/scratch-*/src/lib.rs' -print -quit)
+                    if [ -n "$scratch_lib" ] && ! grep -q '^pub fn path' "$scratch_lib"; then
+                      printf '\n#[allow(dead_code)]\npub fn path(suffix: &str) -> std::path::PathBuf { std::env::temp_dir().join(suffix) }\n' >> "$scratch_lib"
+                    fi
+                  '';
+                });
             };
             cargoArtifacts = old.passthru.craneLib.buildDepsOnly commonArgs;
           in
