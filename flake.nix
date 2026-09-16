@@ -107,9 +107,10 @@
                 in
                 vendor.overrideAttrs (vendorOld: {
                   postBuild = (vendorOld.postBuild or "") + ''
-                    scratch_lib=$(find "$out" -path '*/scratch-*/src/lib.rs' -print -quit)
-                    if [ -n "$scratch_lib" ] && ! grep -q '^pub fn path' "$scratch_lib"; then
-                      printf '\n#[allow(dead_code)]\npub fn path(suffix: &str) -> std::path::PathBuf { std::env::temp_dir().join(suffix) }\n' >> "$scratch_lib"
+                    cxx_build_lib=$(find "$out" -path '*/cxx-build-*/src/lib.rs' -print -quit)
+                    if [ -n "$cxx_build_lib" ]; then
+                      substituteInPlace "$cxx_build_lib" \
+                        --replace-fail 'scratch::path("cxxbridge")' 'std::env::temp_dir().join("cxxbridge")'
                     fi
                   '';
                 });
