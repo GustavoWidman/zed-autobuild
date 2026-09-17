@@ -114,6 +114,15 @@
                   '';
                 });
             };
+            preBuild = (old.passthru.commonArgs.preBuild or "") + ''
+              cxx_build_lib=$(grep -RIl --include=lib.rs 'scratch::path("cxxbridge")' "$cargoVendorDir" | head -n1 || true)
+              if [ -z "$cxx_build_lib" ]; then
+                echo "error: cxx-build scratch::path call not found in cargo vendor tree" >&2
+                exit 1
+              fi
+              sed -i 's/scratch::path("cxxbridge")/std::env::temp_dir().join("cxxbridge")/' "$cxx_build_lib"
+              grep -q 'std::env::temp_dir().join("cxxbridge")' "$cxx_build_lib"
+            '';
             cargoArtifacts = old.passthru.craneLib.buildDepsOnly commonArgs;
           in
           {
