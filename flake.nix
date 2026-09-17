@@ -113,20 +113,29 @@
                     fi
                   '';
                 });
-              preBuild = (old.passthru.commonArgs.preBuild or "") + ''
-                cxx_build_lib=$(grep -RIl --include=lib.rs 'scratch::path("cxxbridge")' "$cargoVendorDir" | head -n1 || true)
-                if [ -z "$cxx_build_lib" ]; then echo "error: cxx-build source not found" >&2; exit 1; fi
-                sed -i 's/scratch::path("cxxbridge")/std::env::temp_dir().join("cxxbridge")/' "$cxx_build_lib"
+                preBuild = (old.passthru.commonArgs.preBuild or "") + ''
+                set -eu
+                patched="$NIX_BUILD_TOP/vendor-patched"
+                rm -rf "$patched"
+                mkdir -p "$patched"
+                cp -r "$cargoVendorDir" "$patched/root"
+                chmod -R u+w "$patched/root"
+                cxx_lib=$(grep -RIl --include=lib.rs 'scratch::path("cxxbridge")' "$patched/root" | head -n1 || true)
+                if [ -z "$cxx_lib" ]; then
+                  echo "error: cxx-build lib.rs with scratch::path not found in vendor tree" >&2
+                  exit 1
+                fi
+                sed -i 's/scratch::path("cxxbridge")/std::env::temp_dir().join("cxxbridge")/' "$cxx_lib"
+                grep -q 'std::env::temp_dir().join("cxxbridge")' "$cxx_lib"
+                sed -i "s#$cargoVendorDir#$patched/root#g" "$sourceRoot/.cargo-home/config.toml"
               '';
             };
             preBuild = (old.passthru.commonArgs.preBuild or "") + ''
-              cxx_build_lib=$(grep -RIl --include=lib.rs 'scratch::path("cxxbridge")' "$cargoVendorDir" | head -n1 || true)
-              if [ -z "$cxx_build_lib" ]; then
-                echo "error: cxx-build scratch::path call not found in cargo vendor tree" >&2
-                exit 1
+              set -eu
+              patched="$NIX_BUILD_TOP/vendor-patched"
+              if [ -d "$patched/root" ] && grep -RIlq --include=lib.rs 'std::env::temp_dir().join("cxxbridge")' "$patched/root"; then
+                sed -i "s#$cargoVendorDir#$patched/root#g" "$sourceRoot/.cargo-home/config.toml" || true
               fi
-              sed -i 's/scratch::path("cxxbridge")/std::env::temp_dir().join("cxxbridge")/' "$cxx_build_lib"
-              grep -q 'std::env::temp_dir().join("cxxbridge")' "$cxx_build_lib"
             '';
             cargoArtifacts = old.passthru.craneLib.buildDepsOnly commonArgs;
           in
