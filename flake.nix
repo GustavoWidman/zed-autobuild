@@ -113,6 +113,11 @@
                     fi
                   '';
                 });
+              preBuild = (old.passthru.commonArgs.preBuild or "") + ''
+                cxx_build_lib=$(grep -RIl --include=lib.rs 'scratch::path("cxxbridge")' "$cargoVendorDir" | head -n1 || true)
+                if [ -z "$cxx_build_lib" ]; then echo "error: cxx-build source not found" >&2; exit 1; fi
+                sed -i 's/scratch::path("cxxbridge")/std::env::temp_dir().join("cxxbridge")/' "$cxx_build_lib"
+              '';
             };
             preBuild = (old.passthru.commonArgs.preBuild or "") + ''
               cxx_build_lib=$(grep -RIl --include=lib.rs 'scratch::path("cxxbridge")' "$cargoVendorDir" | head -n1 || true)
