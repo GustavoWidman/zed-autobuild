@@ -96,47 +96,28 @@
           let
             commonArgs = old.passthru.commonArgs // {
               cargoLock = "${zed.outPath}/Cargo.lock";
-              cargoVendorDir =
-                let
-                  vendor = old.passthru.craneLib.vendorCargoDeps {
+              cargoVendorDir = old.passthru.craneLib.callPackage ({ stdenv }: stdenv.mkDerivation {
+                name = "vendor-cargo-deps-cxxbuild-patched";
+                buildCommand = let vendor = old.passthru.craneLib.vendorCargoDeps {
                     inherit (old.passthru.commonArgs) src;
                     cargoLock = "${zed.outPath}/Cargo.lock";
                     outputHashes = effectiveOutputHashes;
                     inherit overrideVendorGitCheckout;
-                  };
-                in
-                vendor.overrideAttrs (vendorOld: {
-                  postInstall = (vendorOld.postInstall or "") + ''
-                    cxx_build_lib=$(find "$out" -path '*/cxx-build-*/src/lib.rs' -print -quit)
-                    if [ -n "$cxx_build_lib" ]; then
-                      sed -i 's/scratch::path(\"cxxbridge\")/std::env::temp_dir().join(\"cxxbridge\")/' "$cxx_build_lib"
-                    fi
-                  '';
-                });
-                preBuild = (old.passthru.commonArgs.preBuild or "") + ''
-                set -eu
-                patched="$NIX_BUILD_TOP/vendor-patched"
-                rm -rf "$patched"
-                mkdir -p "$patched"
-                cp -r "$cargoVendorDir" "$patched/root"
-                chmod -R u+w "$patched/root"
-                cxx_lib=$(grep -RIl --include=lib.rs 'scratch::path("cxxbridge")' "$patched/root" | head -n1 || true)
-                if [ -z "$cxx_lib" ]; then
-                  echo "error: cxx-build lib.rs with scratch::path not found in vendor tree" >&2
-                  exit 1
-                fi
-                sed -i 's/scratch::path("cxxbridge")/std::env::temp_dir().join("cxxbridge")/' "$cxx_lib"
-                grep -q 'std::env::temp_dir().join("cxxbridge")' "$cxx_lib"
-                sed -i "s#$cargoVendorDir#$patched/root#g" "$sourceRoot/.cargo-home/config.toml"
-              '';
+                  }; in ''
+                  set -eu
+                  cp -rL ${vendor} $out
+                  chmod -R u+w $out
+                  sed -i "s#${vendor}#$out#g" $out/config.toml
+                  cxx_lib=$(grep -RIl --include=lib.rs 'scratch::path("cxxbridge")' "$out" | head -n1)
+                  if [ -z "$cxx_lib" ]; then
+                    echo "error: cxx-build lib.rs with scratch::path not found in vendor tree" >&2
+                    exit 1
+                  fi
+                  sed -i 's/scratch::path("cxxbridge")/std::env::temp_dir().join("cxxbridge")/' "$cxx_lib"
+                  grep -q 'std::env::temp_dir().join("cxxbridge")' "$cxx_lib"
+                '';
+              }) { };
             };
-            preBuild = (old.passthru.commonArgs.preBuild or "") + ''
-              set -eu
-              patched="$NIX_BUILD_TOP/vendor-patched"
-              if [ -d "$patched/root" ] && grep -RIlq --include=lib.rs 'std::env::temp_dir().join("cxxbridge")' "$patched/root"; then
-                sed -i "s#$cargoVendorDir#$patched/root#g" "$sourceRoot/.cargo-home/config.toml" || true
-              fi
-            '';
             cargoArtifacts = old.passthru.craneLib.buildDepsOnly commonArgs;
           in
           {
