@@ -2,7 +2,7 @@
   description = "latest release (or pre-release) pinned zed editor builds for binary cache";
 
   inputs = {
-    zed.url = "github:zed-industries/zed/v1.22.0-pre";
+    zed.url = "github:zed-industries/zed/v1.23.1-pre";
   };
 
   outputs =
@@ -57,7 +57,6 @@
         "git+https://github.com/zed-industries/windows-capture.git?rev=f0d6c1b6691db75461b732f6d5ff56eed002eeb9#f0d6c1b6691db75461b732f6d5ff56eed002eeb9" = "sha256-k07Jpk4mcDo1JsZDF7AZMHRqlqFKHt60G2X3BUjMhBc=";
         "git+https://github.com/zed-industries/wprcontrol?rev=cd811f7#cd811f7d744f65291e13131b1d907fda63ed91a1" = "sha256-giOIdpZmu/o/OV1tBdGr3FdG7FkyR5CZTbv6yZCf+y0=";
         "git+https://github.com/zed-industries/xim-rs.git?rev=16f35a2c881b815a2b6cdfd6687988e84f8447d8#16f35a2c881b815a2b6cdfd6687988e84f8447d8" = "sha256-pRT4Sz1JU9ros47/7pmIW9kosWOGMOItcnNd+VrvnpE=";
-        "git+https://github.com/zed-industries/yawc?rev=71a452f551cac178367eaac5d7418a09afa1f3a2#71a452f551cac178367eaac5d7418a09afa1f3a2" = "sha256-42nuLi6XLl7Mvyg5DEckT3rq4XrtW2D9rmWDJcJTMnU=";
       };
       effectiveOutputHashes = knownOutputHashes;
       missingOutputHashKeys = builtins.filter (
