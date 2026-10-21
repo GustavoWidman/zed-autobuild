@@ -2,7 +2,7 @@
   description = "latest release (or pre-release) pinned zed editor builds for binary cache";
 
   inputs = {
-    zed.url = "github:zed-industries/zed/v1.25.1-pre";
+    zed.url = "github:zed-industries/zed/v1.26.1-pre";
   };
 
   outputs =
@@ -29,7 +29,7 @@
         "git+https://github.com/RustAudio/cpal?rev=e1612d5d98152f8dc2a62e1b51ef7cbf4f7f26b7#e1612d5d98152f8dc2a62e1b51ef7cbf4f7f26b7" = "sha256-sCk3cUyxKb8vgl4zHmBN2BZYm5n9IltYD36zK+2WLH4=";
         "git+https://github.com/RustAudio/rodio?rev=3ee9745862279ce1d18db593155016e7ce024aeb#3ee9745862279ce1d18db593155016e7ce024aeb" = "sha256-M4Z21I9kZiE89GHXErzU7fB5avWfpLymMNociDlQR9k=";
         "git+https://github.com/camdencheek/tree-sitter-go-mod?rev=2e886870578eeba1927a2dc4bd2e2b3f598c5f9a#2e886870578eeba1927a2dc4bd2e2b3f598c5f9a" = "sha256-OfhV3lxdyIhA3XZYbafEtdOsQsTCSSCBrN3WbzSVg0g=";
-        "git+https://github.com/proptest-rs/proptest?rev=3dca198a8fef1b32e3a66f1e1897c955b4dc5b5b#3dca198a8fef1b32e3a66f1e1897c955b4dc5b5b" = "sha256-p5NTcHhruI8QQvANACg8AMRVNmuvGxs2NLit+/8PaWo=";
+        "git+https://github.com/gfx-rs/wgpu?rev=3b3506ea31154edc04de64debda0e780cba2639c#3b3506ea31154edc04de64debda0e780cba2639c" = "sha256-ZLW6cQINooN20HUyRQj5BPnc7RODgcsbOOAzcGJEsM4=";
         "git+https://github.com/tree-sitter/tree-sitter-cpp?rev=5cb9b693cfd7bfacab1d9ff4acac1a4150700609#5cb9b693cfd7bfacab1d9ff4acac1a4150700609" = "sha256-s9/n09EruafAMF3g6xOkfu6L+WXUx83PpcVKn1Tnmg8=";
         "git+https://github.com/tree-sitter/tree-sitter?rev=43623ec9bf0eaaf7113285c46e8a09018f181b18#43623ec9bf0eaaf7113285c46e8a09018f181b18" = "sha256-tDZzadbSmuf4bqoExdmH+4mg9WBGrzJ52VnXra13ydg=";
         "git+https://github.com/zed-industries/alacritty?rev=4c129667ce56611becdc82de6e28218c80e2e88f#4c129667ce56611becdc82de6e28218c80e2e88f" = "sha256-fhd6tMhgkuoCTzJLyYa2iL7wjNMWeztfAf2qjsGyQAM=";
