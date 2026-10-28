@@ -2,7 +2,7 @@
   description = "latest release (or pre-release) pinned zed editor builds for binary cache";
 
   inputs = {
-    zed.url = "github:zed-industries/zed/v1.26.2-pre";
+    zed.url = "github:zed-industries/zed/v1.27.0-pre";
   };
 
   outputs =
@@ -29,9 +29,10 @@
         "git+https://github.com/RustAudio/cpal?rev=e1612d5d98152f8dc2a62e1b51ef7cbf4f7f26b7#e1612d5d98152f8dc2a62e1b51ef7cbf4f7f26b7" = "sha256-sCk3cUyxKb8vgl4zHmBN2BZYm5n9IltYD36zK+2WLH4=";
         "git+https://github.com/RustAudio/rodio?rev=3ee9745862279ce1d18db593155016e7ce024aeb#3ee9745862279ce1d18db593155016e7ce024aeb" = "sha256-M4Z21I9kZiE89GHXErzU7fB5avWfpLymMNociDlQR9k=";
         "git+https://github.com/camdencheek/tree-sitter-go-mod?rev=2e886870578eeba1927a2dc4bd2e2b3f598c5f9a#2e886870578eeba1927a2dc4bd2e2b3f598c5f9a" = "sha256-OfhV3lxdyIhA3XZYbafEtdOsQsTCSSCBrN3WbzSVg0g=";
-        "git+https://github.com/gfx-rs/wgpu?rev=3b3506ea31154edc04de64debda0e780cba2639c#3b3506ea31154edc04de64debda0e780cba2639c" = "sha256-ZLW6cQINooN20HUyRQj5BPnc7RODgcsbOOAzcGJEsM4=";
+        "git+https://github.com/gfx-rs/wgpu?rev=cddb2f5d80dc0009b2ef6767635140cacf90a007#cddb2f5d80dc0009b2ef6767635140cacf90a007" = "sha256-OqPeK1cr3OSZgIl+F3GMuXWz31PxFoOO0u4INN9GmgM=";
+        "git+https://github.com/rust-minidump/minidump-writer?rev=911b04e09b79b736cc15cbe712e83e2d3f348bb9#911b04e09b79b736cc15cbe712e83e2d3f348bb9" = "sha256-+5qQKTct90e/DessTN2atpsHU9hA5nILFGTR2b19AbQ=";
         "git+https://github.com/tree-sitter/tree-sitter-cpp?rev=5cb9b693cfd7bfacab1d9ff4acac1a4150700609#5cb9b693cfd7bfacab1d9ff4acac1a4150700609" = "sha256-s9/n09EruafAMF3g6xOkfu6L+WXUx83PpcVKn1Tnmg8=";
-        "git+https://github.com/tree-sitter/tree-sitter?rev=43623ec9bf0eaaf7113285c46e8a09018f181b18#43623ec9bf0eaaf7113285c46e8a09018f181b18" = "sha256-tDZzadbSmuf4bqoExdmH+4mg9WBGrzJ52VnXra13ydg=";
+        "git+https://github.com/tree-sitter/tree-sitter?rev=803c6ebaac27d69e1808b45058482e868d073ceb#803c6ebaac27d69e1808b45058482e868d073ceb" = "sha256-rjRn13szRHNZtoD9V3D3uULTUsz9zqXmt53adNWYJFQ=";
         "git+https://github.com/zed-industries/alacritty?rev=4c129667ce56611becdc82de6e28218c80e2e88f#4c129667ce56611becdc82de6e28218c80e2e88f" = "sha256-fhd6tMhgkuoCTzJLyYa2iL7wjNMWeztfAf2qjsGyQAM=";
         "git+https://github.com/zed-industries/async-pipe-rs?rev=82d00a04211cf4e1236029aa03e6b6ce2a74c553#82d00a04211cf4e1236029aa03e6b6ce2a74c553" = "sha256-g120X88HGT8P6GNCrzpS5SutALx5H+45Sf4iSSxzctE=";
         "git+https://github.com/zed-industries/async-process.git?rev=0b6d6713570af61806e1e5cb40e0f757cb93fd9d#0b6d6713570af61806e1e5cb40e0f757cb93fd9d" = "sha256-Y37QTr6sjayv+JjGz00v0AMLQtsix1nH1lNKmky+6bU=";
@@ -43,14 +44,16 @@
         "git+https://github.com/zed-industries/gh-workflow?rev=37f3c0575d379c218a9c455ee67585184e40d43f#37f3c0575d379c218a9c455ee67585184e40d43f" = "sha256-5V/PYw6vyL+retNyHbwyCoNe0PG5rjR1I4XTnkjLmwg=";
         "git+https://github.com/zed-industries/khronos-egl?rev=42214b36347b108fd9630ca6254b96dde59e04fe#42214b36347b108fd9630ca6254b96dde59e04fe" = "sha256-VeDtEMFI7C9b5INaIIVI3AO9akPxXiE11TiM3Gw/knU=";
         "git+https://github.com/zed-industries/livekit-rust-sdks?rev=0a1c519cfce9b365229026b55de9b9dbdb6fed3c#0a1c519cfce9b365229026b55de9b9dbdb6fed3c" = "sha256-q6gm0Ki2zNqtgPFt4v4y1jfT0mHMUUNYtsyV1A4fscU=";
-        "git+https://github.com/zed-industries/lsp-types?rev=f1783e63a7f4eb4397bf51d4148b4895a1f7ab16#f1783e63a7f4eb4397bf51d4148b4895a1f7ab16" = "sha256-d0nFsJ6qlIdZoTT+xfA++nL5vQUGwKzPXarMYEeZt0Y=";
+        "git+https://github.com/zed-industries/lsp-types?rev=82d7fc66ebdfabcfeb26ba16bbed9f3d26211fc3#82d7fc66ebdfabcfeb26ba16bbed9f3d26211fc3" = "sha256-G6xhjqrFkQcagwfIbLqAC7rgF7oxNKDVAYe68M7vsq4=";
         "git+https://github.com/zed-industries/notify?rev=d842f16b2716bd60f09caf3ae3a894237ab38f54#d842f16b2716bd60f09caf3ae3a894237ab38f54" = "sha256-Wr9CgQGda4NDVy2apmkXlpHYmKgCXmPWI9cfCXINU6w=";
+        "git+https://github.com/zed-industries/oo7?rev=731c1215edb6905876c6137ab300428c7b8d7c13#731c1215edb6905876c6137ab300428c7b8d7c13" = "sha256-QXblWsnq+graWOSW0iA8pUzpwizDLi/kOSWDdSQVZ/0=";
         "git+https://github.com/zed-industries/python-environment-tools.git?rev=5aad7164bfc2a58977b103c8ef8fdd7302ed2e9f#5aad7164bfc2a58977b103c8ef8fdd7302ed2e9f" = "sha256-lHEjGNT2wpENh7hqPzlSv0F7GGVq0Nq0r5aS9iih/8U=";
         "git+https://github.com/zed-industries/reqwest.git?rev=33bc764aa15ff7b200bf7c93bd96e24878d53e14#33bc764aa15ff7b200bf7c93bd96e24878d53e14" = "sha256-mO7cT3c5a3s3D3yv8B7E961ffuqHxnhn9+Y+CGk9Rxo=";
-        "git+https://github.com/zed-industries/scap?rev=4afea48c3b002197176fb19cd0f9b180dd36eaac#4afea48c3b002197176fb19cd0f9b180dd36eaac" = "sha256-BihiQHlal/eRsktyf0GI3aSWsUCW7WcICMsC2Xvb7kw=";
+        "git+https://github.com/zed-industries/scap?rev=b5c86ec58dd4b6b7732bf6ac8be03d6b1f190a82#b5c86ec58dd4b6b7732bf6ac8be03d6b1f190a82" = "sha256-WVcjceVESUhPKL9z/1y+l/vmtHRJS4EecaMOaVN686o=";
         "git+https://github.com/zed-industries/trash-rs?rev=41c6c800d884a89351f3b8856d12894cccee261d#41c6c800d884a89351f3b8856d12894cccee261d" = "sha256-jLEttaISqOns3AZO6yI9Nk/szsOsU4HnP389gOsP3A8=";
         "git+https://github.com/zed-industries/tree-sitter-git-commit?rev=88309716a69dd13ab83443721ba6e0b491d37ee9#88309716a69dd13ab83443721ba6e0b491d37ee9" = "sha256-Z1BDWFXve4lRa6cTQyVHAfVo2ZFhcxKdRYpyWqbU4lY=";
         "git+https://github.com/zed-industries/tree-sitter-go-work?rev=acb0617bf7f4fda02c6217676cc64acb89536dc7#acb0617bf7f4fda02c6217676cc64acb89536dc7" = "sha256-WRMgGjOlJ+bT/YnSBeSLRTLlltA5WwTvV0Ow/949+BE=";
+        "git+https://github.com/zed-industries/tree-sitter-go?rev=6862a49e3c5a7567a6c576420e9a8f944e198a85#6862a49e3c5a7567a6c576420e9a8f944e198a85" = "sha256-PlnQiB321wLWaxCBbQ0fRxOQIu1elCjCO+cNkhAVRM4=";
         "git+https://github.com/zed-industries/tree-sitter-heex?rev=1dd45142fbb05562e35b2040c6129c9bca346592#1dd45142fbb05562e35b2040c6129c9bca346592" = "sha256-SnjhL0WVsHOKuUp3dkTETnCgC/Z7WN0XmpQdJPBeBhw=";
         "git+https://github.com/zed-industries/tree-sitter-markdown?rev=b596e737286780d7bfa9fcddceaeeb754574b352#b596e737286780d7bfa9fcddceaeeb754574b352" = "sha256-ctCRhpNv5ltaAD1s3KY88TFrHvKd3yqqFXh4Nuxrfew=";
         "git+https://github.com/zed-industries/tree-sitter-typescript?rev=e2c53597d6a5d9cf7bbe8dccde576fe1e46c5899#e2c53597d6a5d9cf7bbe8dccde576fe1e46c5899" = "sha256-Hjtr5QpetJrrs1EL2QH24uc1erJLUHQGQfDUbjkmF9M=";
