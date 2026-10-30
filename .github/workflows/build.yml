@@ -169,7 +169,7 @@ jobs:
           fi
 
           LAST_SUCCESSFUL_BUILD=$(cat .last-success 2>/dev/null || true)
-          CURRENT_BUILD="$CURRENT_TAG"$'\t'"$LOCKED_ZED_REV"
+          CURRENT_BUILD="$CURRENT_TAG"$'\t'"$LOCKED_ZED_REV"$'\t'"https://cache.r3dlust.com"
           echo "build_tag=$CURRENT_TAG" >> "$GITHUB_OUTPUT"
           echo "has_new_release=false" >> "$GITHUB_OUTPUT"
           echo "should_update=false" >> "$GITHUB_OUTPUT"
@@ -231,6 +231,9 @@ jobs:
 
   build-and-push:
     name: Build ${{ matrix.system }}
+    permissions:
+      contents: read
+      id-token: write
     needs: [check-new-release, update-release]
     if: >-
       always() &&
@@ -270,11 +273,12 @@ jobs:
             trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs= cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g= zed.cachix.org-1:/pHQ6dpMsAZk2DiP4WCL0p9YDNKWj2Q5FL20bNmw1cU=
             cores = ${{ matrix.system == 'aarch64-linux' && '2' || '0' }}
             max-jobs = ${{ matrix.system == 'aarch64-linux' && '2' || 'auto' }}
-      - uses: cachix/cachix-action@v15
+      - name: Configure niks3 cache
+        id: cache
+        uses: Mic92/niks3-action@v1
         with:
-          name: r3dlust
-          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-          skipPush: true
+          server-url: https://cache.r3dlust.com
+          substituter: https://cache.r3dlust.com
       - uses: DeterminateSystems/magic-nix-cache-action@main
 
       - name: Build Zed for ${{ matrix.system }}
@@ -286,15 +290,14 @@ jobs:
             nix build .#default -L
           fi
 
-      - name: Push to Cachix
+      - name: Publish and pin Zed
+        env:
+          NIKS3_BIN: ${{ steps.cache.outputs.binary-dir }}/niks3
+          NIKS3_AUTH_TOKEN_SCRIPT: ${{ steps.cache.outputs.auth-token-script }}
+          NIKS3_SERVER_URL: https://cache.r3dlust.com
+          ZED_SYSTEM: ${{ matrix.system }}
         run: |
-          STORE_PATH=$(nix eval --raw .#packages.${{ matrix.system }}.default.outPath 2>/dev/null || nix eval --raw .#default.outPath)
-          PIN_NAME="zed-${{ matrix.system }}"
-          echo "Pushing to Cachix: $STORE_PATH"
-
-          nix path-info --recursive "$STORE_PATH" | cachix push r3dlust
-
-          cachix pin r3dlust "$PIN_NAME" "$STORE_PATH" --keep-revisions 3
+          .github/scripts/publish-cache "$ZED_SYSTEM" "$(readlink result)"
 
   mark-release-success:
     name: Record successful Zed cache build
@@ -328,7 +331,7 @@ jobs:
           LOCKED_ZED_REV=$(jq -er '.nodes.zed.locked.rev' flake.lock)
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          printf '%s\t%s\n' "$ZED_TAG" "$LOCKED_ZED_REV" > .last-success
+          printf '%s\t%s\t%s\n' "$ZED_TAG" "$LOCKED_ZED_REV" 'https://cache.r3dlust.com' > .last-success
           git add .last-success
           if ! git diff --cached --quiet; then
             git commit --quiet -m "chore: record successful build for $ZED_TAG"

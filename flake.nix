@@ -157,12 +157,12 @@
 
   nixConfig = {
     extra-substituters = [
-      "https://r3dlust.cachix.org"
+      "https://cache.r3dlust.com"
       "https://cache.garnix.io"
       "https://zed.cachix.org"
     ];
     extra-trusted-public-keys = [
-      "r3dlust.cachix.org-1:/R3S8pW/nr7kOBJKcGPsZ0zCepvldTUEgbrqa4O3cW0="
+      "cache.r3dlust.com-1:Wdkf9mes2ued0P7C7CL3Jax1b4KPuJwQpM3h4G/Z+yI="
       "zed.cachix.org-1:/pHQ6dpMsAZk2DiP4WCL0p9YDNKWj2Q5FL20bNmw1cU="
       "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
     ];
