@@ -279,6 +279,8 @@ jobs:
         with:
           server-url: https://cache.r3dlust.com
           substituter: https://cache.r3dlust.com
+          # Publish only successful Zed runtime closures in the explicit step below.
+          skip-push: true
       - uses: DeterminateSystems/magic-nix-cache-action@main
 
       - name: Build Zed for ${{ matrix.system }}
