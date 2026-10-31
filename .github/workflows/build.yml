@@ -330,7 +330,7 @@ jobs:
             in pkgs.runCommand name {} "echo cache-smoke > $out"
           ')
           "$NIKS3_BIN" push --server-url https://cache.r3dlust.com \
-            --auth-token-script "$NIKS3_AUTH_TOKEN_SCRIPT" "$STORE_PATH"
+            --auth-token-script "$NIKS3_AUTH_TOKEN_SCRIPT" --max-concurrent-uploads 2 "$STORE_PATH"
           nix path-info --refresh --store https://cache.r3dlust.com "$STORE_PATH"
 
       - name: Build Zed for ${{ matrix.system }}

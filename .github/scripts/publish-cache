@@ -32,7 +32,7 @@ revision_pin=$(jq -er --arg prefix "$pin_name" --arg path "$store_path" '
 ' <<< "$pins")
 
 # Upload synchronously before moving the public pin or recording build success.
-"$NIKS3_BIN" push "${auth[@]}" --pin "$revision_pin" "$store_path"
+"$NIKS3_BIN" push "${auth[@]}" --max-concurrent-uploads 2 --pin "$revision_pin" "$store_path"
 "$NIKS3_BIN" pins create "${auth[@]}" "$pin_name" "$store_path"
 nix path-info --refresh --store "$NIKS3_SERVER_URL" "$store_path"
 
