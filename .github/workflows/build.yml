@@ -283,10 +283,16 @@ jobs:
       - name: Check cache discovery
         run: |
           set -euo pipefail
-          curl --fail --silent --show-error --retry 3 --max-time 30 \
+          if ! curl --fail-with-body --silent --show-error --retry 3 --max-time 30 \
+            --dump-header "$RUNNER_TEMP/cache-discovery.headers" \
+            --output "$RUNNER_TEMP/cache-discovery.json" \
             --get --data-urlencode 'issuer=https://token.actions.githubusercontent.com' \
-            https://cache.r3dlust.com/api/cache-config \
-            | jq -e '.oidc_audience == "https://cache.r3dlust.com"'
+            https://cache.r3dlust.com/api/cache-config; then
+            cat "$RUNNER_TEMP/cache-discovery.headers"
+            head -c 1500 "$RUNNER_TEMP/cache-discovery.json" || true
+            exit 1
+          fi
+          jq -e '.oidc_audience == "https://cache.r3dlust.com"' "$RUNNER_TEMP/cache-discovery.json"
 
       - name: Configure niks3 cache
         id: cache
