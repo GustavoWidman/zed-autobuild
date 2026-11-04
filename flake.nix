@@ -2,7 +2,7 @@
   description = "latest release (or pre-release) pinned zed editor builds for binary cache";
 
   inputs = {
-    zed.url = "github:zed-industries/zed/v1.27.0-pre";
+    zed.url = "github:zed-industries/zed/v1.28.0-pre";
   };
 
   outputs =
@@ -43,7 +43,7 @@
         "git+https://github.com/zed-industries/font-kit?rev=94b0f28166665e8fd2f53ff6d268a14955c82269#94b0f28166665e8fd2f53ff6d268a14955c82269" = "sha256-KXygi0olNQi5yM8eaJVykNDtbPMDjT+cWPBF8UrtXR4=";
         "git+https://github.com/zed-industries/gh-workflow?rev=37f3c0575d379c218a9c455ee67585184e40d43f#37f3c0575d379c218a9c455ee67585184e40d43f" = "sha256-5V/PYw6vyL+retNyHbwyCoNe0PG5rjR1I4XTnkjLmwg=";
         "git+https://github.com/zed-industries/khronos-egl?rev=42214b36347b108fd9630ca6254b96dde59e04fe#42214b36347b108fd9630ca6254b96dde59e04fe" = "sha256-VeDtEMFI7C9b5INaIIVI3AO9akPxXiE11TiM3Gw/knU=";
-        "git+https://github.com/zed-industries/livekit-rust-sdks?rev=0a1c519cfce9b365229026b55de9b9dbdb6fed3c#0a1c519cfce9b365229026b55de9b9dbdb6fed3c" = "sha256-q6gm0Ki2zNqtgPFt4v4y1jfT0mHMUUNYtsyV1A4fscU=";
+        "git+https://github.com/zed-industries/livekit-rust-sdks?rev=fbda05eb278b4a7c5be8fc9b2a92e9b62e732236#fbda05eb278b4a7c5be8fc9b2a92e9b62e732236" = "sha256-igmhPEM7zvj91Q03qp6Vs+4KcbWfQPie2HQZWtX+EIY=";
         "git+https://github.com/zed-industries/lsp-types?rev=82d7fc66ebdfabcfeb26ba16bbed9f3d26211fc3#82d7fc66ebdfabcfeb26ba16bbed9f3d26211fc3" = "sha256-G6xhjqrFkQcagwfIbLqAC7rgF7oxNKDVAYe68M7vsq4=";
         "git+https://github.com/zed-industries/notify?rev=d842f16b2716bd60f09caf3ae3a894237ab38f54#d842f16b2716bd60f09caf3ae3a894237ab38f54" = "sha256-Wr9CgQGda4NDVy2apmkXlpHYmKgCXmPWI9cfCXINU6w=";
         "git+https://github.com/zed-industries/oo7?rev=731c1215edb6905876c6137ab300428c7b8d7c13#731c1215edb6905876c6137ab300428c7b8d7c13" = "sha256-QXblWsnq+graWOSW0iA8pUzpwizDLi/kOSWDdSQVZ/0=";
