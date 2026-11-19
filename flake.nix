@@ -2,7 +2,7 @@
   description = "latest release (or pre-release) pinned zed editor builds for binary cache";
 
   inputs = {
-    zed.url = "github:zed-industries/zed/v1.29.1-pre";
+    zed.url = "github:zed-industries/zed/v1.30.1-pre";
   };
 
   outputs =
@@ -31,13 +31,13 @@
         "git+https://github.com/camdencheek/tree-sitter-go-mod?rev=2e886870578eeba1927a2dc4bd2e2b3f598c5f9a#2e886870578eeba1927a2dc4bd2e2b3f598c5f9a" = "sha256-OfhV3lxdyIhA3XZYbafEtdOsQsTCSSCBrN3WbzSVg0g=";
         "git+https://github.com/gfx-rs/wgpu?rev=cddb2f5d80dc0009b2ef6767635140cacf90a007#cddb2f5d80dc0009b2ef6767635140cacf90a007" = "sha256-OqPeK1cr3OSZgIl+F3GMuXWz31PxFoOO0u4INN9GmgM=";
         "git+https://github.com/rust-minidump/minidump-writer?rev=911b04e09b79b736cc15cbe712e83e2d3f348bb9#911b04e09b79b736cc15cbe712e83e2d3f348bb9" = "sha256-+5qQKTct90e/DessTN2atpsHU9hA5nILFGTR2b19AbQ=";
+        "git+https://github.com/smol-rs/async-task?rev=41fd3359c75e221bd8b187a8ee361aa309c1714c#41fd3359c75e221bd8b187a8ee361aa309c1714c" = "sha256-503Yewi444XtYodEWIggMmVN3NKqCgtMBNegiMyJcCI=";
         "git+https://github.com/tree-sitter/tree-sitter-cpp?rev=5cb9b693cfd7bfacab1d9ff4acac1a4150700609#5cb9b693cfd7bfacab1d9ff4acac1a4150700609" = "sha256-s9/n09EruafAMF3g6xOkfu6L+WXUx83PpcVKn1Tnmg8=";
         "git+https://github.com/tree-sitter/tree-sitter?rev=803c6ebaac27d69e1808b45058482e868d073ceb#803c6ebaac27d69e1808b45058482e868d073ceb" = "sha256-rjRn13szRHNZtoD9V3D3uULTUsz9zqXmt53adNWYJFQ=";
         "git+https://github.com/zed-industries/alacritty?rev=4c129667ce56611becdc82de6e28218c80e2e88f#4c129667ce56611becdc82de6e28218c80e2e88f" = "sha256-fhd6tMhgkuoCTzJLyYa2iL7wjNMWeztfAf2qjsGyQAM=";
         "git+https://github.com/zed-industries/async-pipe-rs?rev=82d00a04211cf4e1236029aa03e6b6ce2a74c553#82d00a04211cf4e1236029aa03e6b6ce2a74c553" = "sha256-g120X88HGT8P6GNCrzpS5SutALx5H+45Sf4iSSxzctE=";
         "git+https://github.com/zed-industries/async-process.git?rev=0b6d6713570af61806e1e5cb40e0f757cb93fd9d#0b6d6713570af61806e1e5cb40e0f757cb93fd9d" = "sha256-Y37QTr6sjayv+JjGz00v0AMLQtsix1nH1lNKmky+6bU=";
         "git+https://github.com/zed-industries/async-tar?rev=bd3ad6f89df9a9da7a8535958756d6bf465936a0#bd3ad6f89df9a9da7a8535958756d6bf465936a0" = "sha256-790cqn6Iksv2xeaEWPx6u9Gl8yQxKxHP6QO7/aInTko=";
-        "git+https://github.com/zed-industries/async-task.git?rev=015845a19fc31752c02367567d3b8900a406f9da#015845a19fc31752c02367567d3b8900a406f9da" = "sha256-503Yewi444XtYodEWIggMmVN3NKqCgtMBNegiMyJcCI=";
         "git+https://github.com/zed-industries/calloop?rev=3759371fee14c40066d64777e2a36b6ffcc22590#3759371fee14c40066d64777e2a36b6ffcc22590" = "sha256-5lWGGm6Wehf3RNFnhll0hMlUCXeVFHeoyHN4pbMS9zQ=";
         "git+https://github.com/zed-industries/dap-types?rev=1b461b310481d01e02b2603c16d7144b926339f8#1b461b310481d01e02b2603c16d7144b926339f8" = "sha256-H8QwXMcq5CH8qjzNw1eXQhNhPet+662kmn5LomIBzGo=";
         "git+https://github.com/zed-industries/font-kit?rev=94b0f28166665e8fd2f53ff6d268a14955c82269#94b0f28166665e8fd2f53ff6d268a14955c82269" = "sha256-KXygi0olNQi5yM8eaJVykNDtbPMDjT+cWPBF8UrtXR4=";
