@@ -2,7 +2,7 @@
   description = "latest release (or pre-release) pinned zed editor builds for binary cache";
 
   inputs = {
-    zed.url = "github:zed-industries/zed/v1.30.2-pre";
+    zed.url = "github:zed-industries/zed/v1.31.0-pre";
   };
 
   outputs =
@@ -33,7 +33,7 @@
         "git+https://github.com/rust-minidump/minidump-writer?rev=911b04e09b79b736cc15cbe712e83e2d3f348bb9#911b04e09b79b736cc15cbe712e83e2d3f348bb9" = "sha256-+5qQKTct90e/DessTN2atpsHU9hA5nILFGTR2b19AbQ=";
         "git+https://github.com/smol-rs/async-task?rev=41fd3359c75e221bd8b187a8ee361aa309c1714c#41fd3359c75e221bd8b187a8ee361aa309c1714c" = "sha256-503Yewi444XtYodEWIggMmVN3NKqCgtMBNegiMyJcCI=";
         "git+https://github.com/tree-sitter/tree-sitter-cpp?rev=5cb9b693cfd7bfacab1d9ff4acac1a4150700609#5cb9b693cfd7bfacab1d9ff4acac1a4150700609" = "sha256-s9/n09EruafAMF3g6xOkfu6L+WXUx83PpcVKn1Tnmg8=";
-        "git+https://github.com/tree-sitter/tree-sitter?rev=803c6ebaac27d69e1808b45058482e868d073ceb#803c6ebaac27d69e1808b45058482e868d073ceb" = "sha256-rjRn13szRHNZtoD9V3D3uULTUsz9zqXmt53adNWYJFQ=";
+        "git+https://github.com/tree-sitter/tree-sitter?rev=cf5d3a63f9fa069fc32b9a73dc28830e427d5ee0#cf5d3a63f9fa069fc32b9a73dc28830e427d5ee0" = "sha256-dyg5/Oqjou7VDvLAaNerAhtBFNxVLdLrEHAL6/NbCnI=";
         "git+https://github.com/zed-industries/alacritty?rev=4c129667ce56611becdc82de6e28218c80e2e88f#4c129667ce56611becdc82de6e28218c80e2e88f" = "sha256-fhd6tMhgkuoCTzJLyYa2iL7wjNMWeztfAf2qjsGyQAM=";
         "git+https://github.com/zed-industries/async-pipe-rs?rev=82d00a04211cf4e1236029aa03e6b6ce2a74c553#82d00a04211cf4e1236029aa03e6b6ce2a74c553" = "sha256-g120X88HGT8P6GNCrzpS5SutALx5H+45Sf4iSSxzctE=";
         "git+https://github.com/zed-industries/async-process.git?rev=0b6d6713570af61806e1e5cb40e0f757cb93fd9d#0b6d6713570af61806e1e5cb40e0f757cb93fd9d" = "sha256-Y37QTr6sjayv+JjGz00v0AMLQtsix1nH1lNKmky+6bU=";
