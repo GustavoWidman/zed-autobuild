@@ -401,3 +401,12 @@ jobs:
               git rebase "origin/$GITHUB_REF_NAME"
             done
           fi
+
+      # master takes each release update before its builds start, so a flake
+      # locked to master can point at a zed no cache holds yet. `cached` only
+      # moves here, to the commit every system just built and published.
+      - name: Move the cached branch to the built release
+        if: github.ref_name == 'master'
+        env:
+          BUILT_SHA: ${{ needs.update-release.outputs.commit_sha || github.sha }}
+        run: git push --quiet origin "$BUILT_SHA:refs/heads/cached"
